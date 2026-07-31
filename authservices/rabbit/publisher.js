@@ -5,7 +5,7 @@ let channel = null;
 let connectionPromise = null;
 
 function getRabbitUrl() {
-	return process.env.RABBITMQ_URL || process.env.RABBIT_URL || 'amqp://guest:guest@rabbitmq:5672';
+	return process.env.RABBITMQ_URL || process.env.RABBIT_URL || 'amqp://guest:guest@127.0.0.1:5672';
 }
 
 function buildMessage(eventType, payload) {
