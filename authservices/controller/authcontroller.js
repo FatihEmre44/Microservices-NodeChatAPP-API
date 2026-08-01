@@ -78,7 +78,6 @@ async function upsertAuth(req, res, next) {
 async function loginAuth(req, res, next) {
     try {
         const phoneNumber = req.authPhoneNumber;
-        const { twoStepPin } = req.body;
 
         const auth = await findAuthByPhoneNumber(phoneNumber);
 
@@ -88,20 +87,6 @@ async function loginAuth(req, res, next) {
 
         if (auth.status !== 'active') {
             return res.status(403).json({ success: false, message: 'Auth account is not active' });
-        }
-
-        if (!auth.isVerified) {
-            return res.status(403).json({ success: false, message: 'Auth account is not verified' });
-        }
-
-        if (auth.twoStepPin) {
-            if (!twoStepPin) {
-                return res.status(400).json({ success: false, message: 'twoStepPin is required' });
-            }
-
-            if (String(auth.twoStepPin) !== String(twoStepPin)) {
-                return res.status(401).json({ success: false, message: 'Invalid twoStepPin' });
-            }
         }
 
         const accessToken = createAccessToken(phoneNumber);

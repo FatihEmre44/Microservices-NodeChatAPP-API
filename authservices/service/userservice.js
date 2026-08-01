@@ -5,7 +5,7 @@ async function createAuth(input) {
 	const auth = new Auth({
 		phoneNumber: input.phoneNumber,
 		twoStepPin: input.twoStepPin ?? null,
-		isVerified: input.isVerified ?? false,
+		isVerified: input.isVerified ?? true,
 		status: input.status ?? 'active',
 		refreshTokens: input.refreshTokens ?? [],
 	});
