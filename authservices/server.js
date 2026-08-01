@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
@@ -5,7 +6,7 @@ const authRouter = require('./routers/authrouter');
 const { startRabbitConsumer } = require('./rabbit/consumer');
 const { notFoundHandler, errorHandler } = require('./middlewares/errorhandler');
 
-dotenv.config();
+dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 const app = express();
 const port = Number(process.env.PORT || 4001);
