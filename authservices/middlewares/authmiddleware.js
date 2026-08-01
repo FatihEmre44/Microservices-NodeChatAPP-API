@@ -1,3 +1,5 @@
+const jwt = require('jsonwebtoken');
+
 const AUTH_STATUSES = new Set(['active', 'banned', 'deleted']);
 
 function sendValidationError(res, message) {
@@ -44,8 +46,29 @@ function requireRefreshToken(req, res, next) {
 	next();
 }
 
+function requireJwtAuth(req, res, next) {
+	const authHeader = req.headers.authorization;
+	const token = authHeader && authHeader.startsWith('Bearer ')
+		? authHeader.slice(7).trim()
+		: null;
+
+	if (!token) {
+		return res.status(401).json({ success: false, message: 'Authorization token is required' });
+	}
+
+	try {
+		const decoded = jwt.verify(token, process.env.JWT_SECRET || 'authservice-secret');
+		req.authUser = decoded;
+		req.authPhoneNumber = decoded.phoneNumber;
+		next();
+	} catch (error) {
+		return res.status(401).json({ success: false, message: 'Invalid or expired token' });
+	}
+}
+
 module.exports = {
 	requirePhoneNumber,
 	requireStatus,
 	requireRefreshToken,
+	requireJwtAuth,
 };

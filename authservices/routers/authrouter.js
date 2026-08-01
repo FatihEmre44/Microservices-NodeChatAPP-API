@@ -3,10 +3,13 @@ const {
 	requirePhoneNumber,
 	requireStatus,
 	requireRefreshToken,
+	requireJwtAuth,
 } = require('../middlewares/authmiddleware');
 const {
 	registerAuth,
 	upsertAuth,
+	loginAuth,
+	refreshAuth,
 	getAuth,
 	verifyAuth,
 	updateStatus,
@@ -19,6 +22,9 @@ const router = express.Router();
 
 router.post('/register', requirePhoneNumber, registerAuth);
 router.post('/upsert', requirePhoneNumber, upsertAuth);
+router.post('/login', requirePhoneNumber, loginAuth);
+router.post('/refresh', refreshAuth);
+router.get('/me', requireJwtAuth, getAuth);
 router.get('/', requirePhoneNumber, getAuth);
 router.patch('/verify', requirePhoneNumber, verifyAuth);
 router.patch('/status', requirePhoneNumber, requireStatus, updateStatus);
