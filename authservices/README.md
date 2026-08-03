@@ -30,8 +30,7 @@ Response:
   "message": "Auth record created",
   "data": {
     "phoneNumber": "+905551234567",
-    "status": "active",
-    "isVerified": true
+    "status": "active"
   }
 }
 ```
