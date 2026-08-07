@@ -2,11 +2,13 @@ FROM node:22-alpine
 
 WORKDIR /app
 
-COPY package.json package-lock.json ./
-RUN npm install --omit=dev
+COPY userservices/package.json userservices/package-lock.json ./userservices/
+COPY userservices ./userservices
+COPY package.json ./package.json
 
-COPY . .
+WORKDIR /app/userservices
+RUN npm install --omit=dev
 
 EXPOSE 4002
 
-CMD ["npm", "start"]
+CMD ["node", "server.js"]

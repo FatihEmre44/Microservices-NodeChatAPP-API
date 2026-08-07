@@ -47,7 +47,7 @@ services:
       dockerfile: userservices/docker/Dockerfile
     restart: unless-stopped
     ports:
-      - "4002:4002"
+      - "4102:4002"
     environment:
       PORT: 4002
       MONGODB_URI: mongodb://mongo:27017/userservice
