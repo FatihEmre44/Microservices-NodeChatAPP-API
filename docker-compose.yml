@@ -41,5 +41,22 @@ services:
       rabbitmq:
         condition: service_healthy
 
+  userservice:
+    build:
+      context: .
+      dockerfile: userservices/docker/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "4002:4002"
+    environment:
+      PORT: 4002
+      MONGODB_URI: mongodb://mongo:27017/userservice
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      mongo:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
 volumes:
   mongo-data:
