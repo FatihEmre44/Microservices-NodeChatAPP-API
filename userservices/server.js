@@ -4,9 +4,10 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const { startRabbitConsumer } = require('./rabbit/consumer');
 const userRouter = require('./routers/userrouter');
-const User = require('./models/usermodel');
-const UserService = require('./services/userservices');
+const UserRepository = require('./repositories/userrepository');
+const UserService = require('./services/userservice');
 const { notFoundHandler, errorHandler } = require('./middlewares/errorhandler');
+const logger = require('./utils/logger');
 
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 
@@ -31,26 +32,26 @@ app.use(errorHandler);
 async function start() {
 	try {
 		await mongoose.connect(mongoUri);
-		console.log('MongoDB connected');
+		logger.info('MongoDB connected');
 	} catch (error) {
-		console.warn('MongoDB connection failed:', error.message);
+		logger.warn({ err: error.message }, 'MongoDB connection failed');
 	}
 
-	const userService = new UserService(User);
+	const userService = new UserService(new UserRepository());
 
 	try {
 		await startRabbitConsumer(userService);
-		console.log('RabbitMQ consumer started');
+		logger.info('RabbitMQ consumer started');
 	} catch (error) {
-		console.warn('RabbitMQ consumer could not start:', error.message);
+		logger.warn({ err: error.message }, 'RabbitMQ consumer could not start');
 	}
 
 	app.listen(port, () => {
-		console.log(`userservice listening on port ${port}`);
+		logger.info(`userservice listening on port ${port}`);
 	});
 }
 
 start().catch((error) => {
-	console.error('Failed to start userservice:', error);
+	logger.error({ err: error.message }, 'Failed to start userservice');
 	process.exit(1);
 });
