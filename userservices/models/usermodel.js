@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema(
             required: true,
             trim: true,
         },
-        bi: {
+        bio: {
             type: String,
             default: null,
         },

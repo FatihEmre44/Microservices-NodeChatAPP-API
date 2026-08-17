@@ -10,6 +10,7 @@ class RabbitMQConfig {
     this.maxReconnectAttempts = Number(process.env.RABBITMQ_MAX_RECONNECT_ATTEMPTS || 10);
     this.reconnectDelayMs = Number(process.env.RABBITMQ_RECONNECT_DELAY_MS || 2000);
     this.exchangeName = process.env.RABBITMQ_EXCHANGE_NAME || 'user.events';
+    this.authExchangeName = process.env.RABBITMQ_AUTH_EXCHANGE_NAME || 'auth.events';
     this.dlxExchangeName = process.env.RABBITMQ_DLX_EXCHANGE_NAME || 'user.events.dlx';
     this.queueName = process.env.RABBITMQ_QUEUE_NAME || 'user.events.queue';
     this.dlqQueueName = process.env.RABBITMQ_DLQ_QUEUE_NAME || 'user.events.dlq';
@@ -48,6 +49,7 @@ class RabbitMQConfig {
 
       this.channel = await this.connection.createConfirmChannel();
       await this.channel.assertExchange(this.exchangeName, 'topic', { durable: true });
+      await this.channel.assertExchange(this.authExchangeName, 'topic', { durable: true });
       await this.channel.assertExchange(this.dlxExchangeName, 'topic', { durable: true });
       await this.channel.assertQueue(this.queueName, {
         durable: true,
@@ -56,7 +58,7 @@ class RabbitMQConfig {
       });
       await this.channel.assertQueue(this.dlqQueueName, { durable: true });
       await this.channel.bindQueue(this.queueName, this.exchangeName, 'user.#');
-      await this.channel.bindQueue(this.queueName, this.exchangeName, 'auth.#');
+      await this.channel.bindQueue(this.queueName, this.authExchangeName, 'auth.#');
       await this.channel.bindQueue(this.dlqQueueName, this.dlxExchangeName, this.dlqQueueName);
       await this.channel.prefetch(10);
       this.reconnectAttempts = 0;
