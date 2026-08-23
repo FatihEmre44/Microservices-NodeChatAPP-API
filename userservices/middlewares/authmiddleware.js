@@ -1,15 +1,39 @@
+const jwt = require('jsonwebtoken');
 const logger = require('../utils/logger');
 
-function requirePhoneNumber(req, res, next) {
-  const phoneNumber = req.params.phoneNumber || req.body.phoneNumber || req.query.phoneNumber;
+function requireJwtAuth(req, res, next) {
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.startsWith('Bearer ')
+    ? authHeader.slice(7).trim()
+    : null;
 
-  if (!phoneNumber || typeof phoneNumber !== 'string' || !phoneNumber.trim()) {
-    return res.status(400).json({ success: false, message: 'phoneNumber is required' });
+  if (!token) {
+    return res.status(401).json({ success: false, message: 'Authorization token is required' });
   }
 
-  req.phoneNumber = phoneNumber;
-  next();
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'authservice-secret');
+    const authPhoneNumber = decoded && decoded.phoneNumber;
+
+    if (!authPhoneNumber || typeof authPhoneNumber !== 'string' || !authPhoneNumber.trim()) {
+      return res.status(401).json({ success: false, message: 'Token payload is invalid' });
+    }
+
+    const routePhoneNumber = req.params.phoneNumber;
+    if (routePhoneNumber && routePhoneNumber !== authPhoneNumber) {
+      return res.status(403).json({ success: false, message: 'Forbidden: phone number mismatch' });
+    }
+
+    req.authUser = decoded;
+    req.authPhoneNumber = authPhoneNumber;
+    req.phoneNumber = authPhoneNumber;
+    next();
+  } catch (error) {
+    return res.status(401).json({ success: false, message: 'Invalid or expired token' });
+  }
 }
+
+const requirePhoneNumber = requireJwtAuth;
 
 function requireBodyField(fieldName) {
   return function (req, res, next) {
@@ -34,6 +58,7 @@ function errorHandler(err, req, res, next) {
 }
 
 module.exports = {
+  requireJwtAuth,
   requirePhoneNumber,
   requireBodyField,
   errorHandler,
