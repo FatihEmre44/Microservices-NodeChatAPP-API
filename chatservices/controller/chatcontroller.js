@@ -11,22 +11,19 @@ async function getRooms(req, res, next) {
   }
 }
 
-async function getRoomById(req, res, next) {
+async function getRoomMessages(req, res, next) {
   try {
-    const room = await chatService.getRoomById(req.params.roomId, req.authPhoneNumber);
-    if (!room) {
-      return res.status(404).json({ success: false, message: 'Room not found' });
-    }
-    return res.status(200).json({ success: true, data: room });
+    const messages = await chatService.getRoomMessages(req.params.roomId, req.authPhoneNumber, req.query.since);
+    return res.status(200).json({ success: true, data: messages });
   } catch (error) {
     next(error);
   }
 }
 
-async function createDirectRoom(req, res, next) {
+async function createOrFindRoom(req, res, next) {
   try {
-    const room = await chatService.createDirectRoom(req.authPhoneNumber, req.body.participantPhoneNumber);
-    return res.status(201).json({ success: true, message: 'Direct room created', data: room });
+    const room = await chatService.createOrFindRoom(req.authPhoneNumber, req.body.otherPhoneNumber);
+    return res.status(201).json({ success: true, message: 'Room ready', data: room });
   } catch (error) {
     next(error);
   }
@@ -57,8 +54,8 @@ async function addMessage(req, res, next) {
 
 module.exports = {
   getRooms,
-  getRoomById,
-  createDirectRoom,
+  getRoomMessages,
+  createOrFindRoom,
   createGroupRoom,
   addMessage,
 };

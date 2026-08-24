@@ -2,11 +2,15 @@ FROM node:22-alpine
 
 WORKDIR /app
 
-COPY chatservices/package.json ./chatservices/package.json
+COPY chatservices/package*.json ./chatservices/
+
+WORKDIR /app/chatservices
+RUN npm ci --omit=dev
+
+WORKDIR /app
 COPY chatservices ./chatservices
 
 WORKDIR /app/chatservices
-RUN npm install --omit=dev
 
 EXPOSE 4003
 

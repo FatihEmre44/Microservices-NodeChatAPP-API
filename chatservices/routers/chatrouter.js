@@ -1,8 +1,8 @@
 const express = require('express');
 const {
   getRooms,
-  getRoomById,
-  createDirectRoom,
+  getRoomMessages,
+  createOrFindRoom,
   createGroupRoom,
   addMessage,
 } = require('../controller/chatcontroller');
@@ -11,10 +11,10 @@ const requireRoomParticipant = require('../middlewares/requireRoomParticipant');
 
 const router = express.Router();
 
-router.get('/', requireJwtAuth, getRooms);
-router.get('/:roomId', requireJwtAuth, requireRoomParticipant, getRoomById);
-router.post('/direct', requireJwtAuth, requireBodyField('participantPhoneNumber'), createDirectRoom);
+router.get('/rooms', requireJwtAuth, getRooms);
+router.get('/rooms/:roomId/messages', requireJwtAuth, requireRoomParticipant, getRoomMessages);
+router.post('/rooms', requireJwtAuth, requireBodyField('otherPhoneNumber'), createOrFindRoom);
 router.post('/group', requireJwtAuth, requireBodyField('groupName'), requireBodyField('participants'), createGroupRoom);
-router.post('/:roomId/messages', requireJwtAuth, requireRoomParticipant, requireBodyField('content'), addMessage);
+router.post('/rooms/:roomId/messages', requireJwtAuth, requireRoomParticipant, requireBodyField('content'), addMessage);
 
 module.exports = router;

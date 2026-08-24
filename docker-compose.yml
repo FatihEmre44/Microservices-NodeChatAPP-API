@@ -58,5 +58,24 @@ services:
       rabbitmq:
         condition: service_healthy
 
+  chatservice:
+    build:
+      context: .
+      dockerfile: chatservices/docker/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "4003:4003"
+    environment:
+      PORT: 4003
+      MONGODB_URI: mongodb://mongo:27017/chatservice
+      JWT_SECRET: authservice-secret
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      USERSERVICE_URL: http://userservice:4002
+    depends_on:
+      mongo:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
 volumes:
-  mongo-data:
+  mongo-data:
