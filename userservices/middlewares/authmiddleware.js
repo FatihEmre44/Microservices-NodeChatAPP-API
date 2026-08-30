@@ -19,11 +19,6 @@ function requireJwtAuth(req, res, next) {
       return res.status(401).json({ success: false, message: 'Token payload is invalid' });
     }
 
-    const routePhoneNumber = req.params.phoneNumber;
-    if (routePhoneNumber && routePhoneNumber !== authPhoneNumber) {
-      return res.status(403).json({ success: false, message: 'Forbidden: phone number mismatch' });
-    }
-
     req.authUser = decoded;
     req.authPhoneNumber = authPhoneNumber;
     req.phoneNumber = authPhoneNumber;
@@ -47,6 +42,18 @@ function requireBodyField(fieldName) {
   };
 }
 
+function requireSelf(req, res, next) {
+  const routePhoneNumber = req.params.phoneNumber;
+  if (routePhoneNumber && routePhoneNumber !== req.authPhoneNumber) {
+    // allow service-to-service calls
+    if (req.authUser && req.authUser.service) {
+      return next();
+    }
+    return res.status(403).json({ success: false, message: 'Forbidden: phone number mismatch' });
+  }
+  next();
+}
+
 function errorHandler(err, req, res, next) {
   logger.error({ err: err.message, stack: err.stack }, 'Unhandled error');
 
@@ -61,5 +68,6 @@ module.exports = {
   requireJwtAuth,
   requirePhoneNumber,
   requireBodyField,
+  requireSelf,
   errorHandler,
 };

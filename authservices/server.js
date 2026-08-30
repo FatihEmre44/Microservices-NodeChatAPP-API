@@ -2,6 +2,7 @@ const path = require('path');
 const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
+const cors = require('cors');
 const authRouter = require('./routers/authrouter');
 const { startRabbitConsumer } = require('./rabbit/consumer');
 const { notFoundHandler, errorHandler } = require('./middlewares/errorhandler');
@@ -12,6 +13,7 @@ const app = express();
 const port = Number(process.env.PORT || 4001);
 const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/authservice';
 
+app.use(cors());
 app.use(express.json());
 
 app.use('/auth', authRouter);

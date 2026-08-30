@@ -77,5 +77,17 @@ services:
       rabbitmq:
         condition: service_healthy
 
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/docker/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - authservice
+      - userservice
+      - chatservice
+
 volumes:
-  mongo-data:
+  mongo-data:
